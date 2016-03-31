@@ -2,6 +2,7 @@ require 'fileutils'
 require 'json'
 require 'socket'
 require 'digest/sha1'
+require 'resolv'
 
 module Synapse
   class Haproxy
@@ -750,6 +751,9 @@ module Synapse
             b = case watcher.haproxy['cookie_value_method']
             when 'hash'
               b = "#{b} cookie #{Digest::SHA1.hexdigest(backend_name)}"
+            when 'hostname'
+              hostname = Resolv.getname(backend['host']).split('.')[0] rescue backend_name
+              b = "#{b} cookie #{hostname}"
             else
               b = "#{b} cookie #{backend_name}"
             end
